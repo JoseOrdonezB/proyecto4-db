@@ -1,69 +1,86 @@
-from flask import Blueprint, request, jsonify
-from controllers.reporte_controller import (
-    obtener_reporte_avance,
-    obtener_reporte_ranking,
-    obtener_reporte_entregas,
-    obtener_reporte_inscripciones,
-    obtener_reporte_cursos
-)
+from flask import Blueprint, render_template, request
+from models import VistaProductoDetalle, VistaUsuariosRoles, VistaPedidosCompletos
+from extensions import db
 
-reportes_bp = Blueprint('reportes_bp', __name__)
+reportes_bp = Blueprint('reportes', __name__, url_prefix='/reportes')
 
-# 1. Avance de estudiantes por curso
-@reportes_bp.route('/api/reportes/avance')
-def reporte_avance():
-    curso_id = request.args.get('curso_id')
-    porcentaje_min = float(request.args.get('porcentaje_min', 0))
-    porcentaje_max = float(request.args.get('porcentaje_max', 100))
+# --------------------
+# REPORTE: PRODUCTOS
+# --------------------
+@reportes_bp.route('/productos')
+def reporte_productos():
+    nombre = request.args.get('nombre')
+    estado = request.args.get('estado')
+    categoria = request.args.get('categoria')
+    proveedor = request.args.get('proveedor')
+    stock_min = request.args.get('stock_min')
+
+    query = VistaProductoDetalle.query
+
+    if nombre:
+        query = query.filter(VistaProductoDetalle.nombre.ilike(f'%{nombre}%'))
+    if estado:
+        query = query.filter(VistaProductoDetalle.estado == estado)
+    if categoria:
+        query = query.filter(VistaProductoDetalle.categorias.any(categoria))
+    if proveedor:
+        query = query.filter(VistaProductoDetalle.proveedores.any(proveedor))
+    if stock_min:
+        query = query.filter(VistaProductoDetalle.stock >= int(stock_min))
+
+    resultados = query.all()
+    return render_template('reportes/productos.html', productos=resultados)
+
+# --------------------
+# REPORTE: USUARIOS
+# --------------------
+@reportes_bp.route('/usuarios')
+def reporte_usuarios():
+    nombre = request.args.get('nombre')
+    email = request.args.get('email')
+    rol = request.args.get('rol')
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
 
-    datos = obtener_reporte_avance(curso_id, porcentaje_min, porcentaje_max, fecha_inicio, fecha_fin)
-    return jsonify(datos)
+    query = VistaUsuariosRoles.query
 
-# 2. Ranking de estudiantes
-@reportes_bp.route('/api/reportes/ranking')
-def reporte_ranking():
-    curso_id = request.args.get('curso_id')
-    calificacion_min = float(request.args.get('calificacion_min', 0))
+    if nombre:
+        query = query.filter(VistaUsuariosRoles.nombre.ilike(f'%{nombre}%'))
+    if email:
+        query = query.filter(VistaUsuariosRoles.email.ilike(f'%{email}%'))
+    if rol:
+        query = query.filter(VistaUsuariosRoles.roles.any(rol))
+    if fecha_inicio:
+        query = query.filter(VistaUsuariosRoles.fecha_registro >= fecha_inicio)
+    if fecha_fin:
+        query = query.filter(VistaUsuariosRoles.fecha_registro <= fecha_fin)
+
+    resultados = query.all()
+    return render_template('reportes/usuarios.html', usuarios=resultados)
+
+# --------------------
+# REPORTE: PEDIDOS
+# --------------------
+@reportes_bp.route('/pedidos')
+def reporte_pedidos():
+    cliente = request.args.get('cliente')
+    email = request.args.get('email')
+    estado = request.args.get('estado')
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
-    top_n = int(request.args.get('top_n', 10))
 
-    datos = obtener_reporte_ranking(curso_id, calificacion_min, fecha_inicio, fecha_fin, top_n)
-    return jsonify(datos)
+    query = VistaPedidosCompletos.query
 
-# 3. Evaluaciones entregadas
-@reportes_bp.route('/api/reportes/entregas')
-def reporte_entregas():
-    curso_id = request.args.get('curso_id')
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
-    puntaje_min = float(request.args.get('puntaje_min', 0))
-    puntaje_max = float(request.args.get('puntaje_max', 100))
+    if cliente:
+        query = query.filter(VistaPedidosCompletos.cliente.ilike(f'%{cliente}%'))
+    if email:
+        query = query.filter(VistaPedidosCompletos.email.ilike(f'%{email}%'))
+    if estado:
+        query = query.filter(VistaPedidosCompletos.estado == estado)
+    if fecha_inicio:
+        query = query.filter(VistaPedidosCompletos.fecha >= fecha_inicio)
+    if fecha_fin:
+        query = query.filter(VistaPedidosCompletos.fecha <= fecha_fin)
 
-    datos = obtener_reporte_entregas(curso_id, fecha_inicio, fecha_fin, puntaje_min, puntaje_max)
-    return jsonify(datos)
-
-# 4. Inscripciones por periodo
-@reportes_bp.route('/api/reportes/inscripciones')
-def reporte_inscripciones():
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
-    curso_id = request.args.get('curso_id')
-    instructor_id = request.args.get('instructor_id')
-
-    datos = obtener_reporte_inscripciones(fecha_inicio, fecha_fin, curso_id, instructor_id)
-    return jsonify(datos)
-
-# 5. Cursos por categoría y duración
-@reportes_bp.route('/api/reportes/cursos')
-def reporte_cursos():
-    id_categoria = request.args.get('id_categoria')
-    duracion_min = int(request.args.get('duracion_min', 0))
-    duracion_max = int(request.args.get('duracion_max', 100))
-    instructor_id = request.args.get('instructor_id')
-    nombre_like = request.args.get('nombre_like')
-
-    datos = obtener_reporte_cursos(id_categoria, duracion_min, duracion_max, instructor_id, nombre_like)
-    return jsonify(datos)
+    resultados = query.all()
+    return render_template('reportes/pedidos.html', pedidos=resultados)

@@ -1,37 +1,44 @@
 from flask import Flask, render_template
+from config import Config
+from extensions import db, migrate
 from flask_cors import CORS
-from routes.estudiantes import estudiantes_bp
-from routes.reportes import reportes_bp
-from routes.instructores import instructores_bp
-from routes.cursos import cursos_bp
 
+# Inicializar Flask
 app = Flask(__name__)
+app.config.from_object(Config)
+
+# Inicializar extensiones
+db.init_app(app)
+migrate.init_app(app, db)
 CORS(app)
 
-app.register_blueprint(estudiantes_bp)
-app.register_blueprint(reportes_bp)
-app.register_blueprint(instructores_bp)
-app.register_blueprint(cursos_bp)
+# Importar modelos (esto registra las tablas en SQLAlchemy)
+from models import *
 
+# Registrar blueprints
+from routes.usuarios import usuarios_bp
+from routes.productos import productos_bp
+from routes.pedidos import pedidos_bp
+from routes.carritos import carritos_bp
+from routes.pagos import pagos_bp
+from routes.soporte import soporte_bp
+from routes.vistas import vistas_bp
+from routes.reportes import reportes_bp
+
+app.register_blueprint(usuarios_bp)
+app.register_blueprint(productos_bp)
+app.register_blueprint(pedidos_bp)
+app.register_blueprint(carritos_bp)
+app.register_blueprint(pagos_bp)
+app.register_blueprint(soporte_bp)
+app.register_blueprint(vistas_bp)
+app.register_blueprint(reportes_bp)
+
+# Ruta principal
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/reportes')
-def reportes():
-    return render_template('reportes.html')
-
-@app.route('/estudiantes')
-def estudiantes():
-    return render_template('estudiantes.html')
-
-@app.route('/instructores')
-def instructores():
-    return render_template('instructores.html')
-
-@app.route('/cursos')
-def cursos():
-    return render_template('cursos.html')
-
+# Ejecutar la app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=app.config['DEBUG'])

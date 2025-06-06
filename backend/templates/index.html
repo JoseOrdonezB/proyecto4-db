@@ -2,37 +2,31 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Plataforma de Cursos</title>
+  <title>Panel de Reportes</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <h1 class="titulo">Bienvenido a la Plataforma de Cursos</h1>
+  <h1 class="titulo">Bienvenido al Panel de Reportes</h1>
 
   <div class="card-container">
-  <a href="/estudiantes" class="card">
-    <div class="card-icon">👨‍🎓</div>
-    <h2>Estudiantes</h2>
-    <p>Ver listado de estudiantes registrados</p>
-  </a>
+    <a href="{{ url_for('reportes.reporte_productos') }}" class="card">
+      <div class="card-icon">📦</div>
+      <h2>Reporte de Productos</h2>
+      <p>Consulta productos por categoría, stock, etc.</p>
+    </a>
 
-  <a href="/cursos" class="card">
-    <div class="card-icon">📚</div>
-    <h2>Cursos</h2>
-    <p>Explora los cursos disponibles</p>
-  </a>
+    <a href="{{ url_for('reportes.reporte_usuarios') }}" class="card">
+      <div class="card-icon">👤</div>
+      <h2>Reporte de Usuarios</h2>
+      <p>Ver usuarios y sus roles asignados</p>
+    </a>
 
-  <a href="/instructores" class="card">
-    <div class="card-icon">🧑‍🏫</div>
-    <h2>Instructores</h2>
-    <p>Conoce a los instructores</p>
-  </a>
-
-  <a href="/reportes" class="card">
-    <div class="card-icon">📊</div>
-    <h2>Reportes</h2>
-    <p>Genera reportes en tiempo real</p>
-  </a>
-</div>
+    <a href="{{ url_for('reportes.reporte_pedidos') }}" class="card">
+      <div class="card-icon">🧾</div>
+      <h2>Reporte de Pedidos</h2>
+      <p>Filtrar pedidos por estado, fecha o cliente</p>
+    </a>
+  </div>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: plataforma_cursos
+      POSTGRES_DB: ecommerce
     ports:
       - "5432:5432"
     volumes:
@@ -26,7 +26,7 @@ services:
     environment:
       FLASK_ENV: development
       DB_HOST: db
-      DB_NAME: plataforma_cursos
+      DB_NAME: ecommerce
       DB_USER: postgres
       DB_PASS: postgres
     volumes:
