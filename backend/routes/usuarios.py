@@ -1,10 +1,13 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from extensions import db
 from models.usuario import Usuario
+from datetime import date
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/usuarios')
 
-# Listar todos los usuarios
+# ----------------------------
+# API JSON: Listar todos los usuarios
+# ----------------------------
 @usuarios_bp.route('/', methods=['GET'])
 def listar_usuarios():
     usuarios = Usuario.query.all()
@@ -15,7 +18,9 @@ def listar_usuarios():
         'fecha_registro': u.fecha_registro.isoformat()
     } for u in usuarios])
 
-# Obtener un usuario por ID
+# ----------------------------
+# API JSON: Obtener usuario por ID
+# ----------------------------
 @usuarios_bp.route('/<int:id>', methods=['GET'])
 def obtener_usuario(id):
     usuario = Usuario.query.get_or_404(id)
@@ -26,38 +31,101 @@ def obtener_usuario(id):
         'fecha_registro': usuario.fecha_registro.isoformat()
     })
 
-# Crear un nuevo usuario
-@usuarios_bp.route('/', methods=['POST'])
-def crear_usuario():
-    data = request.json
-    nuevo_usuario = Usuario(
-        nombre=data['nombre'],
-        email=data['email'],
-        contrasena=data['contrasena'],
-        fecha_registro=data['fecha_registro']  # formato 'YYYY-MM-DD'
-    )
-    db.session.add(nuevo_usuario)
-    db.session.commit()
-    return jsonify({'mensaje': 'Usuario creado', 'id': nuevo_usuario.id}), 201
+# ----------------------------
+# HTML: Listar usuarios con filtros
+# ----------------------------
+@usuarios_bp.route('/gestionar', methods=['GET'])
+def gestionar_usuarios():
+    nombre = request.args.get('nombre')
+    email = request.args.get('email')
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
 
-# Actualizar usuario
-@usuarios_bp.route('/<int:id>', methods=['PUT'])
-def actualizar_usuario(id):
+    query = Usuario.query
+
+    if nombre:
+        query = query.filter(Usuario.nombre.ilike(f"%{nombre}%"))
+    if email:
+        query = query.filter(Usuario.email.ilike(f"%{email}%"))
+    if fecha_inicio:
+        query = query.filter(Usuario.fecha_registro >= fecha_inicio)
+    if fecha_fin:
+        query = query.filter(Usuario.fecha_registro <= fecha_fin)
+
+    usuarios = query.all()
+    return render_template('reportes/usuarios.html', usuarios=usuarios, editar=False, usuario=None)
+
+# ----------------------------
+# HTML: Mostrar formulario de edición
+# ----------------------------
+@usuarios_bp.route('/editar/<int:id>', methods=['GET'])
+def editar_usuario_html(id):
     usuario = Usuario.query.get_or_404(id)
-    data = request.json
+    return render_template('reportes/usuarios.html', usuarios=[], editar=True, usuario=usuario)
 
-    usuario.nombre = data.get('nombre', usuario.nombre)
-    usuario.email = data.get('email', usuario.email)
-    usuario.contrasena = data.get('contrasena', usuario.contrasena)
-    usuario.fecha_registro = data.get('fecha_registro', usuario.fecha_registro)
+# ----------------------------
+# HTML: Crear nuevo usuario
+# ----------------------------
+@usuarios_bp.route('/crear', methods=['POST'])
+def crear_usuario_html():
+    try:
+        id_manual = request.form.get('id')
+        nombre = request.form['nombre']
+        email = request.form['email']
+        contrasena = request.form['contrasena']
+        fecha_str = request.form.get('fecha_registro')
+        fecha = date.fromisoformat(fecha_str) if fecha_str else date.today()
 
-    db.session.commit()
-    return jsonify({'mensaje': 'Usuario actualizado'})
+        if id_manual:
+            id_manual = int(id_manual)
+            if Usuario.query.get(id_manual):
+                return f"Error: Ya existe un usuario con ID {id_manual}", 400
+            nuevo = Usuario(id=id_manual, nombre=nombre, email=email, contrasena=contrasena, fecha_registro=fecha)
+        else:
+            nuevo = Usuario(nombre=nombre, email=email, contrasena=contrasena, fecha_registro=fecha)
 
-# Eliminar usuario
-@usuarios_bp.route('/<int:id>', methods=['DELETE'])
-def eliminar_usuario(id):
-    usuario = Usuario.query.get_or_404(id)
-    db.session.delete(usuario)
-    db.session.commit()
-    return jsonify({'mensaje': 'Usuario eliminado'})
+        db.session.add(nuevo)
+        db.session.commit()
+        return redirect(url_for('usuarios.gestionar_usuarios'))
+
+    except Exception as e:
+        db.session.rollback()
+        return f"Error al crear el usuario: {str(e)}", 500
+
+# ----------------------------
+# HTML: Editar usuario existente
+# ----------------------------
+@usuarios_bp.route('/editar/<int:id>', methods=['POST'])
+def actualizar_usuario_html(id):
+    try:
+        usuario = Usuario.query.get_or_404(id)
+        usuario.nombre = request.form['nombre']
+        usuario.email = request.form['email']
+
+        contrasena = request.form.get('contrasena')
+        if contrasena:
+            usuario.contrasena = contrasena
+
+        fecha_str = request.form.get('fecha_registro')
+        if fecha_str:
+            usuario.fecha_registro = date.fromisoformat(fecha_str)
+
+        db.session.commit()
+        return redirect(url_for('usuarios.gestionar_usuarios'))
+    except Exception as e:
+        db.session.rollback()
+        return f"Error al editar el usuario: {str(e)}", 500
+
+# ----------------------------
+# HTML: Eliminar usuario
+# ----------------------------
+@usuarios_bp.route('/eliminar/<int:id>', methods=['POST'])
+def eliminar_usuario_html(id):
+    try:
+        usuario = Usuario.query.get_or_404(id)
+        db.session.delete(usuario)
+        db.session.commit()
+        return redirect(url_for('usuarios.gestionar_usuarios'))
+    except Exception as e:
+        db.session.rollback()
+        return f"Error al eliminar el usuario: {str(e)}", 500

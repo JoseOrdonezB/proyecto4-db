@@ -1,38 +1,46 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("form-filtros-productos");
   const exportarCsv = document.getElementById("exportar-csv");
-  const exportarPdf = document.getElementById("exportar-pdf");
+  const form = document.querySelector("form#form-filtros-productos"); // Formulario de filtros específico
 
-  // Envío automático del formulario al cambiar un filtro
+  // Envío automático del formulario de filtros al cambiar un campo
   if (form) {
     form.addEventListener("change", () => {
       form.submit();
     });
   }
 
-  // Exportar a CSV
+  // Exportar tabla de productos a CSV
   if (exportarCsv) {
     exportarCsv.addEventListener("click", () => {
       exportarTablaCSV("tabla-productos", "reporte_productos.csv");
     });
   }
 
-  // Función auxiliar para exportar tabla a CSV
   function exportarTablaCSV(idTabla, nombreArchivo) {
     const tabla = document.getElementById(idTabla);
+    if (!tabla) {
+      alert("No hay tabla para exportar.");
+      return;
+    }
+
     let csv = [];
     for (let fila of tabla.rows) {
-      let datos = [];
+      let filaCsv = [];
       for (let celda of fila.cells) {
-        datos.push('"' + celda.innerText.replace(/"/g, '""') + '"');
+        let texto = celda.innerText.replace(/"/g, '""'); // Escapa comillas dobles
+        filaCsv.push(`"${texto}"`);
       }
-      csv.push(datos.join(","));
+      csv.push(filaCsv.join(","));
     }
-    const contenidoCsv = csv.join("\n");
-    const blob = new Blob([contenidoCsv], { type: "text/csv" });
+
+    const contenido = csv.join("\n");
+    const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
     const enlace = document.createElement("a");
     enlace.href = URL.createObjectURL(blob);
     enlace.download = nombreArchivo;
+    enlace.style.display = "none";
+    document.body.appendChild(enlace);
     enlace.click();
+    document.body.removeChild(enlace);
   }
 });

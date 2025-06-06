@@ -22,8 +22,8 @@ create table roles (
 );
 
 create table usuarios_roles (
-    usuario_id int references usuarios(id),
-    rol_id int references roles(id),
+    usuario_id int references usuarios(id) on delete cascade,
+    rol_id int references roles(id) on delete cascade,
     primary key (usuario_id, rol_id)
 );
 
@@ -46,8 +46,8 @@ create table productos (
 );
 
 create table productos_proveedores (
-    producto_id int references productos(id),
-    proveedor_id int references proveedores(id),
+    producto_id int references productos(id) on delete cascade,
+    proveedor_id int references proveedores(id) on delete cascade,
     primary key (producto_id, proveedor_id)
 );
 
@@ -57,14 +57,14 @@ create table categorias (
 );
 
 create table productos_categorias (
-    producto_id int references productos(id),
-    categoria_id int references categorias(id),
+    producto_id int references productos(id) on delete cascade,
+    categoria_id int references categorias(id) on delete cascade,
     primary key (producto_id, categoria_id)
 );
 
 create table imagenes_producto (
     id serial primary key,
-    producto_id int references productos(id),
+    producto_id int references productos(id) on delete cascade,
     url varchar(255) not null
 );
 
@@ -72,28 +72,28 @@ create table imagenes_producto (
 
 create table carritos (
     id serial primary key,
-    usuario_id int references usuarios(id),
+    usuario_id int references usuarios(id) on delete cascade,
     fecha_creacion date not null
 );
 
 create table carrito_productos (
-    carrito_id int references carritos(id),
-    producto_id int references productos(id),
+    carrito_id int references carritos(id) on delete cascade,
+    producto_id int references productos(id) on delete cascade,
     cantidad int not null,
     primary key (carrito_id, producto_id)
 );
 
 create table pedidos (
     id serial primary key,
-    usuario_id int references usuarios(id),
+    usuario_id int references usuarios(id) on delete cascade,
     total numeric(10,2) not null,
     fecha date not null,
     estado estado_pedido not null
 );
 
 create table detalles_pedido (
-    pedido_id int references pedidos(id),
-    producto_id int references productos(id),
+    pedido_id int references pedidos(id) on delete cascade,
+    producto_id int references productos(id) on delete cascade,
     cantidad int not null,
     precio_unitario numeric(10,2) not null,
     primary key (pedido_id, producto_id)
@@ -103,7 +103,7 @@ create table detalles_pedido (
 
 create table direcciones (
     id serial primary key,
-    usuario_id int references usuarios(id),
+    usuario_id int references usuarios(id) on delete cascade,
     direccion varchar(255) not null,
     tipo tipo_direccion not null
 );
@@ -135,15 +135,15 @@ create table pagos (
 
 create table resenas (
     id serial primary key,
-    producto_id int references productos(id),
-    usuario_id int references usuarios(id),
+    producto_id int references productos(id) on delete cascade,
+    usuario_id int references usuarios(id) on delete cascade,
     puntuacion int not null,
     comentario text
 );
 
 create table tickets_soporte (
     id serial primary key,
-    usuario_id int references usuarios(id),
+    usuario_id int references usuarios(id) on delete cascade,
     motivo varchar(255) not null,
     estado varchar(50) not null,
     prioridad varchar(50) not null
