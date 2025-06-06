@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte de Usuarios</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <h1 class="titulo">Reporte de Usuarios</h1>
+
+  <div class="tabla-container">
+    <form method="get">
+      <input type="text" name="nombre" placeholder="Nombre" value="{{ request.args.get('nombre', '') }}">
+      <input type="text" name="email" placeholder="Correo electrónico" value="{{ request.args.get('email', '') }}">
+      <input type="text" name="rol" placeholder="Rol" value="{{ request.args.get('rol', '') }}">
+      <input type="date" name="fecha_inicio" value="{{ request.args.get('fecha_inicio', '') }}">
+      <input type="date" name="fecha_fin" value="{{ request.args.get('fecha_fin', '') }}">
+      <button type="submit" id="generar-reporte">Filtrar</button>
+    </form>
+
+    <div style="margin-top: 15px;">
+      <button id="exportar-csv">Exportar CSV 📄</button>
+    </div>
+
+    {% if usuarios %}
+    <table id="tabla-usuarios" class="tabla-estudiantes">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Fecha de Registro</th>
+          <th>Roles</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.nombre }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.fecha_registro }}</td>
+          <td>{{ u.roles }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="margin-top: 20px;">No se encontraron usuarios con los filtros aplicados.</p>
+    {% endif %}
+  </div>
+
+  <script src="{{ url_for('static', filename='js/usuarios.js') }}"></script>
+</body>
+</html>

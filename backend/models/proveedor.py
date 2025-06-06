@@ -8,8 +8,8 @@ class Proveedor(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     contacto = db.Column(db.String(100))
 
-    # Relación con productos a través de tabla intermedia
-    productos = relationship('ProductoProveedor', backref='proveedor', lazy=True)
+    # Relación con productos_proveedores (intermedia)
+    productos = relationship('ProductoProveedor', back_populates='proveedor')
 
     def __repr__(self):
         return f'<Proveedor {self.nombre}>'
@@ -20,8 +20,9 @@ class ProductoProveedor(db.Model):
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), primary_key=True)
     proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), primary_key=True)
 
-    # Relación con Producto (opcional pero útil)
-    producto = relationship('Producto', backref='proveedor_asociaciones', lazy=True)
+    # Relaciones bidireccionales
+    producto = relationship('Producto', back_populates='proveedores')
+    proveedor = relationship('Proveedor', back_populates='productos')
 
     def __repr__(self):
         return f'<ProductoProveedor Producto={self.producto_id} Proveedor={self.proveedor_id}>'

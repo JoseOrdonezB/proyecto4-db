@@ -20,13 +20,13 @@ class Producto(db.Model):
     sku = db.Column(db.String(50), unique=True, nullable=False)
     estado = db.Column(estado_producto_enum, nullable=False, default='activo')
 
-    # Relaciones
-    proveedores = relationship('ProductoProveedor', backref='producto', lazy=True)
-    categorias = relationship('ProductoCategoria', backref='producto', lazy=True)
-    imagenes = relationship('ImagenProducto', backref='producto', lazy=True)
-    detalles_pedido = relationship('DetallePedido', backref='producto', lazy=True)
-    resenas = relationship('Resena', backref='producto', lazy=True)
-    carrito_items = relationship('CarritoProducto', backref='producto', lazy=True)
+    # Relaciones bidireccionales
+    proveedores = relationship('ProductoProveedor', back_populates='producto', lazy=True)
+    categorias = relationship('ProductoCategoria', back_populates='producto', lazy=True)
+    imagenes = relationship('ImagenProducto', back_populates='producto', lazy=True)
+    detalles_pedido = relationship('DetallePedido', back_populates='producto', lazy=True)
+    resenas = relationship('Resena', back_populates='producto', lazy=True)
+    carrito_items = relationship('CarritoProducto', back_populates='producto', lazy=True)
 
     def __repr__(self):
         return f'<Producto {self.nombre} - ${self.precio} - Estado: {self.estado}>'

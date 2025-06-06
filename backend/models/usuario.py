@@ -10,13 +10,13 @@ class Usuario(db.Model):
     contrasena = db.Column(db.String(255), nullable=False)
     fecha_registro = db.Column(db.Date, nullable=False)
 
-    # Relaciones
-    carritos = relationship('Carrito', backref='usuario', lazy=True)
-    pedidos = relationship('Pedido', backref='usuario', lazy=True)
-    direcciones = relationship('Direccion', backref='usuario', lazy=True)
-    resenas = relationship('Resena', backref='usuario', lazy=True)
-    tickets_soporte = relationship('TicketSoporte', backref='usuario', lazy=True)
-    roles = relationship('UsuarioRol', backref='usuario', lazy=True)
+    # Relaciones bidireccionales usando back_populates
+    carritos = relationship('Carrito', back_populates='usuario', lazy=True)
+    pedidos = relationship('Pedido', back_populates='usuario', lazy=True)
+    direcciones = relationship('Direccion', back_populates='usuario', lazy=True)
+    resenas = relationship('Resena', back_populates='usuario', lazy=True)
+    tickets_soporte = relationship('TicketSoporte', back_populates='usuario', lazy=True)
+    roles = relationship('UsuarioRol', back_populates='usuario', lazy=True)
 
     def __repr__(self):
         return f'<Usuario {self.nombre} ({self.email})>'

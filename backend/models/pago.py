@@ -15,8 +15,8 @@ class MetodoPago(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(tipo_pago_enum, nullable=False)
 
-    # Relación con pagos
-    pagos = relationship('Pago', backref='metodo_pago', lazy=True)
+    # Relación explícita con Pago
+    pagos = relationship('Pago', back_populates='metodo_pago', lazy=True)
 
     def __repr__(self):
         return f'<MetodoPago {self.tipo}>'
@@ -29,6 +29,10 @@ class Pago(db.Model):
     metodo_pago_id = db.Column(db.Integer, db.ForeignKey('metodos_pago.id'), nullable=False)
     estado = db.Column(db.String(50), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
+
+    # Relaciones explícitas
+    metodo_pago = relationship('MetodoPago', back_populates='pagos', lazy=True)
+    pedido = relationship('Pedido', back_populates='pago', lazy=True)
 
     def __repr__(self):
         return f'<Pago Pedido={self.pedido_id} Método={self.metodo_pago_id} Estado={self.estado}>'

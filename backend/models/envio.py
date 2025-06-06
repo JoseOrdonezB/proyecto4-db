@@ -1,4 +1,5 @@
 from extensions import db
+from sqlalchemy.orm import relationship
 
 class Envio(db.Model):
     __tablename__ = 'envios'
@@ -9,8 +10,9 @@ class Envio(db.Model):
     transportista = db.Column(db.String(100), nullable=False)
     estado = db.Column(db.String(50), nullable=False)
 
-    # Relaciones con Pedido y Direccion
-    direccion = db.relationship('Direccion', backref='envios', lazy=True)
+    # Relaciones bidireccionales
+    pedido = relationship('Pedido', back_populates='envio', lazy=True)
+    direccion = relationship('Direccion', back_populates='envios', lazy=True)
 
     def __repr__(self):
         return f'<Envio {self.id} - Pedido {self.pedido_id} - Estado: {self.estado}>'

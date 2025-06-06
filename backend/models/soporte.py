@@ -10,11 +10,13 @@ class TicketSoporte(db.Model):
     estado = db.Column(db.String(50), nullable=False)
     prioridad = db.Column(db.String(50), nullable=False)
 
-    # Relación con respuestas
-    respuestas = relationship('RespuestaSoporte', backref='ticket', lazy=True)
+    # Relaciones
+    respuestas = relationship('RespuestaSoporte', back_populates='ticket', lazy=True)
+    usuario = relationship('Usuario', back_populates='tickets_soporte', lazy=True)
 
     def __repr__(self):
         return f'<TicketSoporte {self.id} - Estado: {self.estado}>'
+
 
 class RespuestaSoporte(db.Model):
     __tablename__ = 'respuestas_soporte'
@@ -24,6 +26,9 @@ class RespuestaSoporte(db.Model):
     agente = db.Column(db.String(100), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
     mensaje = db.Column(db.Text, nullable=False)
+
+    # Relación inversa
+    ticket = relationship('TicketSoporte', back_populates='respuestas', lazy=True)
 
     def __repr__(self):
         return f'<RespuestaSoporte {self.id} - Ticket {self.ticket_id}>'

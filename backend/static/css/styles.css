@@ -65,10 +65,21 @@ body {
   color: var(--azul-claro);
 }
 
+/* 🔹 FORMULARIO */
+.formulario {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 🔹 TABLA CONTAINER */
 .tabla-container {
   margin: 30px auto;
-  max-width: 1000px;
-  width: 100%;
+  max-width: 100%;
   background: #ffffff;
   border-left: 5px solid var(--rojo);
   padding: 20px;
@@ -77,11 +88,12 @@ body {
   overflow-x: auto;
 }
 
+/* 🔹 TABLA */
 .tabla-estudiantes {
   width: 100%;
+  min-width: 1000px;
   border-collapse: collapse;
   font-size: 1em;
-  table-layout: fixed;
 }
 
 .tabla-estudiantes thead {
@@ -94,27 +106,31 @@ body {
   padding: 12px 16px;
   border-bottom: 1px solid #ddd;
   text-align: left;
+  white-space: nowrap;
 }
 
 .tabla-estudiantes tbody tr:hover {
   background-color: #cccccc6f;
 }
 
-#reporte-select, input, button {
+/* 🔹 INPUTS Y SELECTS */
+input, select, button {
   margin: 5px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1em;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+select {
   width: 220px;
 }
 
-#reporte-select {
-  background-color: white;
-  border-color: var(--azul-claro);
-  color: var(--azul-oscuro);
-}
-
+/* 🔹 BOTONES */
 #generar-reporte {
   background-color: var(--azul-claro);
   color: white;
@@ -127,18 +143,20 @@ body {
   background-color: var(--azul-oscuro);
 }
 
-#exportar-pdf, #exportar-csv {
+#exportar-pdf,
+#exportar-csv {
   background-color: var(--rojo);
   color: white;
   border: none;
   cursor: pointer;
   margin: 5px;
-  padding: 10px;
+  padding: 10px 20px;
   border-radius: 6px;
   font-size: 1em;
   transition: background-color 0.2s ease;
 }
 
-#exportar-pdf:hover, #exportar-csv:hover {
+#exportar-pdf:hover,
+#exportar-csv:hover {
   background-color: var(--rojo-oscuro);
 }
