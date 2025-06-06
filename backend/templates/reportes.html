@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reportes</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <h1 class="titulo">Reportes en Tiempo Real</h1>
+
+  <div class="tabla-container">
+    <label for="reporte-select"><strong>Selecciona un reporte:</strong></label>
+    <select id="reporte-select">
+      <option value="">-- Seleccionar --</option>
+      <option value="avance">Avance de estudiantes</option>
+      <option value="ranking">Ranking por calificaciones</option>
+      <option value="entregas">Evaluaciones entregadas</option>
+      <option value="inscripciones">Inscripciones por periodo</option>
+      <option value="cursos">Cursos por categoría</option>
+    </select>
+
+    <form id="filtros-form" style="margin-top: 20px;"></form>
+
+    <button id="generar-reporte" style="margin: 20px 0;">Generar Reporte</button>
+
+    <button id='exportar-pdf'>Exportar PDF 📄</button>
+    <button id='exportar-csv'>Exportar CSV 📄</button>
+
+    <div id="resultado-reporte"></div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
+</body>
+</html>
