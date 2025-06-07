@@ -4,7 +4,8 @@ Este proyecto consiste en la utilización del contenido visto durante el semestr
 
 ## Demostración de funcionamiento
 Por cualquier duda, problema o error, puedes ver este video para ver el proyecto en funcionamiento.
-[text](https://youtu.be/InZ9X7qKAVI)
+
+[Video de demostración](https://youtu.be/InZ9X7qKAVI)
 
 ## 🛠️ Tecnologías utilizadas
 
