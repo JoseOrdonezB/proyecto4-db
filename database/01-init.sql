@@ -1,186 +1,157 @@
--- tipos de datos personalizados
 
-create type estado_producto as enum ('activo', 'inactivo', 'eliminado');
-create type rol_usuario as enum ('cliente', 'admin', 'vendedor');
-create type tipo_direccion as enum ('facturacion', 'envio');
-create type estado_pedido as enum ('pendiente', 'pagado', 'enviado', 'cancelado');
-create type tipo_pago as enum ('tarjeta', 'efectivo', 'transferencia', 'paypal');
+-- Tipos de datos personalizados
+CREATE TYPE estado_producto AS ENUM ('activo', 'inactivo', 'eliminado');
+CREATE TYPE rol_usuario AS ENUM ('cliente', 'admin', 'vendedor');
+CREATE TYPE tipo_direccion AS ENUM ('facturacion', 'envio');
+CREATE TYPE estado_pedido AS ENUM ('pendiente', 'pagado', 'enviado', 'cancelado');
+CREATE TYPE tipo_pago AS ENUM ('tarjeta', 'efectivo', 'transferencia', 'paypal');
 
--- usuarios y roles
-
-create table usuarios (
-    id serial primary key,
-    nombre varchar(100) not null,
-    email varchar(100) unique not null,
-    contrasena varchar(255) not null,
-    fecha_registro date not null
+-- Usuarios y roles
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    fecha_registro DATE NOT NULL
 );
 
-create table roles (
-    id serial primary key,
-    rol rol_usuario not null
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    rol rol_usuario NOT NULL
 );
 
-create table usuarios_roles (
-    usuario_id int references usuarios(id) on delete cascade,
-    rol_id int references roles(id) on delete cascade,
-    primary key (usuario_id, rol_id)
+CREATE TABLE usuarios_roles (
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    rol_id INT REFERENCES roles(id) ON DELETE CASCADE,
+    PRIMARY KEY (usuario_id, rol_id)
 );
 
--- productos, categorías y proveedores
-
-create table proveedores (
-    id serial primary key,
-    nombre varchar(100) not null,
-    contacto varchar(100)
+-- Productos, categorías y proveedores
+CREATE TABLE proveedores (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    contacto VARCHAR(100)
 );
 
-create table productos (
-    id serial primary key,
-    nombre varchar(100) not null,
-    descripcion text,
-    precio numeric(10,2) not null,
-    stock int not null,
-    sku varchar(50) unique not null,
-    estado estado_producto not null
+CREATE TABLE productos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
+    stock INT NOT NULL CHECK (stock >= 0),
+    sku VARCHAR(50) UNIQUE NOT NULL,
+    estado estado_producto NOT NULL DEFAULT 'activo'
 );
 
-create table productos_proveedores (
-    producto_id int references productos(id) on delete cascade,
-    proveedor_id int references proveedores(id) on delete cascade,
-    primary key (producto_id, proveedor_id)
+CREATE TABLE productos_proveedores (
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    proveedor_id INT REFERENCES proveedores(id) ON DELETE CASCADE,
+    PRIMARY KEY (producto_id, proveedor_id)
 );
 
-create table categorias (
-    id serial primary key,
-    nombre varchar(100) not null
+CREATE TABLE categorias (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
 );
 
-create table productos_categorias (
-    producto_id int references productos(id) on delete cascade,
-    categoria_id int references categorias(id) on delete cascade,
-    primary key (producto_id, categoria_id)
+CREATE TABLE productos_categorias (
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    categoria_id INT REFERENCES categorias(id) ON DELETE CASCADE,
+    PRIMARY KEY (producto_id, categoria_id)
 );
 
-create table imagenes_producto (
-    id serial primary key,
-    producto_id int references productos(id) on delete cascade,
-    url varchar(255) not null
+CREATE TABLE imagenes_producto (
+    id SERIAL PRIMARY KEY,
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    url VARCHAR(255) NOT NULL
 );
 
--- carritos y pedidos
-
-create table carritos (
-    id serial primary key,
-    usuario_id int references usuarios(id) on delete cascade,
-    fecha_creacion date not null
+-- Carritos y pedidos
+CREATE TABLE carritos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    fecha_creacion DATE NOT NULL
 );
 
-create table carrito_productos (
-    carrito_id int references carritos(id) on delete cascade,
-    producto_id int references productos(id) on delete cascade,
-    cantidad int not null,
-    primary key (carrito_id, producto_id)
+CREATE TABLE carrito_productos (
+    carrito_id INT REFERENCES carritos(id) ON DELETE CASCADE,
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    cantidad INT NOT NULL,
+    PRIMARY KEY (carrito_id, producto_id)
 );
 
-create table pedidos (
-    id serial primary key,
-    usuario_id int references usuarios(id) on delete cascade,
-    total numeric(10,2) not null,
-    fecha date not null,
-    estado estado_pedido not null
+CREATE TABLE pedidos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    total NUMERIC(10,2) NOT NULL,
+    fecha DATE NOT NULL,
+    estado estado_pedido NOT NULL
 );
 
-create table detalles_pedido (
-    pedido_id int references pedidos(id) on delete cascade,
-    producto_id int references productos(id) on delete cascade,
-    cantidad int not null,
-    precio_unitario numeric(10,2) not null,
-    primary key (pedido_id, producto_id)
+CREATE TABLE detalles_pedido (
+    pedido_id INT REFERENCES pedidos(id) ON DELETE CASCADE,
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    cantidad INT NOT NULL,
+    precio_unitario NUMERIC(10,2) NOT NULL,
+    PRIMARY KEY (pedido_id, producto_id)
 );
 
--- envíos y direcciones
-
-create table direcciones (
-    id serial primary key,
-    usuario_id int references usuarios(id) on delete cascade,
-    direccion varchar(255) not null,
-    tipo tipo_direccion not null
+-- Envíos y direcciones
+CREATE TABLE direcciones (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    direccion VARCHAR(255) NOT NULL,
+    tipo tipo_direccion NOT NULL
 );
 
-create table envios (
-    id serial primary key,
-    pedido_id int references pedidos(id),
-    direccion_id int references direcciones(id),
-    transportista varchar(100) not null,
-    estado varchar(50) not null
+CREATE TABLE envios (
+    id SERIAL PRIMARY KEY,
+    pedido_id INT REFERENCES pedidos(id) ON DELETE CASCADE,
+    direccion_id INT REFERENCES direcciones(id) ON DELETE CASCADE,
+    transportista VARCHAR(100) NOT NULL,
+    estado VARCHAR(50) NOT NULL
 );
 
--- pagos y métodos
-
-create table metodos_pago (
-    id serial primary key,
-    tipo tipo_pago not null
+-- Pagos y métodos
+CREATE TABLE metodos_pago (
+    id SERIAL PRIMARY KEY,
+    tipo tipo_pago NOT NULL
 );
 
-create table pagos (
-    id serial primary key,
-    pedido_id int references pedidos(id),
-    metodo_pago_id int references metodos_pago(id),
-    estado varchar(50) not null,
-    fecha date not null
+CREATE TABLE pagos (
+    id SERIAL PRIMARY KEY,
+    pedido_id INT REFERENCES pedidos(id) ON DELETE CASCADE,
+    metodo_pago_id INT REFERENCES metodos_pago(id) ON DELETE CASCADE,
+    estado VARCHAR(50) NOT NULL,
+    fecha DATE NOT NULL
 );
 
--- reseñas y soporte
-
-create table resenas (
-    id serial primary key,
-    producto_id int references productos(id) on delete cascade,
-    usuario_id int references usuarios(id) on delete cascade,
-    puntuacion int not null,
-    comentario text
+-- Reseñas y soporte
+CREATE TABLE resenas (
+    id SERIAL PRIMARY KEY,
+    producto_id INT REFERENCES productos(id) ON DELETE CASCADE,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    puntuacion INT NOT NULL,
+    comentario TEXT
 );
 
-create table tickets_soporte (
-    id serial primary key,
-    usuario_id int references usuarios(id) on delete cascade,
-    motivo varchar(255) not null,
-    estado varchar(50) not null,
-    prioridad varchar(50) not null
+CREATE TABLE tickets_soporte (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    motivo VARCHAR(255) NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    prioridad VARCHAR(50) NOT NULL
 );
 
-create table respuestas_soporte (
-    id serial primary key,
-    ticket_id int references tickets_soporte(id),
-    agente varchar(100) not null,
-    fecha date not null,
-    mensaje text not null
+CREATE TABLE respuestas_soporte (
+    id SERIAL PRIMARY KEY,
+    ticket_id INT REFERENCES tickets_soporte(id) ON DELETE CASCADE,
+    agente VARCHAR(100) NOT NULL,
+    fecha DATE NOT NULL,
+    mensaje TEXT NOT NULL
 );
-
-
--- producto con precio no negativo
-
-alter table productos
-add constraint chk_precio check (precio >= 0);
-
--- email único
-
-alter table usuarios
-add constraint unique_email unique (email);
-
--- stock no puede ser negativo
-
-alter table productos
-add constraint chk_stock check (stock >= 0);
-
--- estado por defecto
-
-alter table productos
-alter column estado set default 'activo';
 
 -- Triggers funcionales
--- actualizar stock despues de pedido
-
 CREATE OR REPLACE FUNCTION descontar_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -196,7 +167,6 @@ AFTER INSERT ON detalles_pedido
 FOR EACH ROW
 EXECUTE FUNCTION descontar_stock();
 
--- validar stock antes de pedido
 CREATE OR REPLACE FUNCTION validar_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -212,7 +182,6 @@ BEFORE INSERT ON detalles_pedido
 FOR EACH ROW
 EXECUTE FUNCTION validar_stock();
 
--- asignar fecha automaticamente
 CREATE OR REPLACE FUNCTION asignar_fecha()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -229,7 +198,6 @@ FOR EACH ROW
 EXECUTE FUNCTION asignar_fecha();
 
 -- Funciones
-
 CREATE OR REPLACE FUNCTION total_pedidos_por_usuario(uid INT)
 RETURNS INT AS $$
 BEGIN
@@ -252,7 +220,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Vistas
-
 CREATE OR REPLACE VIEW vista_productos_detalle AS
 SELECT
     p.id,
@@ -291,5 +258,3 @@ SELECT
     p.estado
 FROM pedidos p
 JOIN usuarios u ON p.usuario_id = u.id;
-
-

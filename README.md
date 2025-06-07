@@ -2,6 +2,10 @@
 
 Este proyecto consiste en la utilización del contenido visto durante el semestre, implementando esos conocimientos en un proyecto más cercano a un proyecto de la vida real.
 
+## Demostración de funcionamiento
+Por cualquier duda, problema o error, puedes ver este video para ver el proyecto en funcionamiento.
+[text](https://youtu.be/InZ9X7qKAVI)
+
 ## 🛠️ Tecnologías utilizadas
 
 - **Backend:** Python, Flask, SQLAlchemy
